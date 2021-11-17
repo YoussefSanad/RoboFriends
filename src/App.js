@@ -1,48 +1,39 @@
-import React, {Component} from 'react'
+import React, {useState, useEffect} from 'react'
 import CardList from './Components/CardList/CardList';
 import SearchBox from './Components/SearchBox/SearchBox';
 import Scroll from "./Components/Scroll/Scroll";
 import ErrorBoundary from "./Components/ErrorBoundary/ErrorBoundary";
 
-class App extends Component {
+const App = () => {
+    const [robots, setRobots] = useState([]);
+    const [search, setSearch] = useState('');
 
-    constructor() {
-        super();
-        this.state = {
-            'robots': [],
-            'search': ''
-        };
-    }
-
-    onSearchChange = (event) => {
-        this.setState({search: event.target.value});
-    }
-
-    componentDidMount() {
+    useEffect(() => {
         fetch('https://jsonplaceholder.typicode.com/users')
             .then(response => response.json())
-            .then(users => this.setState({robots: users}));
+            .then(users => setRobots(users));
+    });
+
+    const onSearchChange = (event) => {
+        setSearch(event.target.value);
     }
 
-    render() {
-        const {robots} = this.state;
-        const filteredRobots = this.state.robots.filter(robot => {
-            return robot.name.toLowerCase().includes(this.state.search.toLowerCase());
-        });
+    const filteredRobots = robots.filter(robot => {
+        return robot.name.toLowerCase().includes(search.toLowerCase());
+    });
 
-        return !robots.length ? <h2>Loading...</h2> :
-            (
-                <div className='tc'>
-                    <h1>RoboFriends</h1>
-                    <SearchBox searchChange={this.onSearchChange}/>
-                    <Scroll>
-                        <ErrorBoundary>
-                            <CardList robots={filteredRobots}/>
-                        </ErrorBoundary>
-                    </Scroll>
-                </div>
-            )
-    }
+    return !robots.length ? <h2>Loading...</h2> :
+        (
+            <div className='tc'>
+                <h1>RoboFriends</h1>
+                <SearchBox searchChange={onSearchChange}/>
+                <Scroll>
+                    <ErrorBoundary>
+                        <CardList robots={filteredRobots}/>
+                    </ErrorBoundary>
+                </Scroll>
+            </div>
+        )
 
 }
 
